@@ -1,0 +1,516 @@
+/* ===================================
+   CSS Design System and Layout
+   TheIndiaCore Chatbot
+   =================================== */
+
+/* ===================================
+   2.1 Design Tokens (CSS Custom Properties)
+   =================================== */
+:root {
+  /* Colors */
+  --bg: #ffffff;
+  --card-bg: #f8faf8;
+  --accent: #4caf50;
+  --accent-2: #2e7d32;
+  --muted: #5f6368;
+  --text: #0f1720;
+  --bubble-user: #e6f7e6;
+  --bubble-bot: #ffffff;
+  --error-bg: #fff3f3;
+  --error-text: #c62828;
+  
+  /* Layout */
+  --max-width-pc: 1100px;
+  --header-width-pc: 80%;
+  --content-width-pc: 65%;
+  --radius: 14px;
+  --shadow: 0 6px 18px rgba(12, 16, 20, 0.06);
+  
+  /* Typography */
+  --font-family: 'Roboto', system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-size-base: 16px;
+  --font-size-sm: 14px;
+  --line-height: 1.5;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 20px;
+  --spacing-xl: 24px;
+  
+  /* Animation */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}
+
+/* ===================================
+   Base Styles
+   =================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===================================
+   2.2 Page Layout with Flexbox
+   =================================== */
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+.top-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-md) 0;
+}
+
+.header-card {
+  width: var(--header-width-pc);
+  max-width: var(--max-width-pc);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+}
+
+.chat-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.chat-card {
+  width: var(--content-width-pc);
+  max-width: var(--max-width-pc);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+/* ===================================
+   2.4 Message Container with Custom Scrollbar
+   =================================== */
+.messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  
+  /* Firefox scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+
+/* WebKit scrollbar styling */
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-2);
+}
+
+/* ===================================
+   2.3 Message Bubbles with Speech Bubble Tails
+   =================================== */
+.bubble {
+  position: relative;
+  max-width: 75%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius);
+  word-wrap: break-word;
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.bubble-content {
+  flex: 1;
+}
+
+.bubble-timestamp {
+  font-size: var(--font-size-sm);
+  color: var(--muted);
+  align-self: flex-end;
+  margin-top: var(--spacing-xs);
+}
+
+/* User Bubble */
+.bubble-user {
+  align-self: flex-end;
+  background: var(--bubble-user);
+  color: var(--text);
+}
+
+.bubble-user::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid var(--bubble-user);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+/* Bot Bubble */
+.bubble-bot {
+  align-self: flex-start;
+  background: var(--bubble-bot);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.bubble-bot::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--bubble-bot);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.bubble-avatar {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.bubble-bot .bubble-content {
+  flex: 1;
+  padding-top: var(--spacing-xs);
+}
+
+/* Error Bubble */
+.bubble-error {
+  align-self: flex-start;
+  background: var(--error-bg);
+  color: var(--error-text);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.bubble-error::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--error-bg);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.error-icon {
+  color: var(--error-text);
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.bubble-error .bubble-content {
+  flex: 1;
+  padding-top: var(--spacing-xs);
+}
+
+/* ===================================
+   2.5 Typing Indicator Animation
+   =================================== */
+.typing-indicator {
+  align-self: flex-start;
+  background: var(--bubble-bot);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  max-width: 120px;
+}
+
+.typing-indicator::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--bubble-bot);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.typing-dots {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.typing-dots .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-2);
+  animation: dot-jump 1.4s infinite;
+}
+
+.typing-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-jump {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ===================================
+   Composer Styles
+   =================================== */
+.composer {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: var(--card-bg);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  bottom: 0;
+}
+
+.composer-input {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  resize: none;
+  outline: none;
+  transition: border-color var(--transition-fast);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.composer-input:focus {
+  border-color: var(--accent);
+}
+
+.composer-input::placeholder {
+  color: var(--muted);
+}
+
+.composer-send {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.composer-send:hover:not(:disabled) {
+  background: #1b5e20;
+}
+
+.composer-send:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.composer-send .material-icons {
+  font-size: 20px;
+}
+
+/* ===================================
+   Markdown Content Styling
+   =================================== */
+.bubble-content p {
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.bubble-content p:last-child {
+  margin-bottom: 0;
+}
+
+.bubble-content strong {
+  font-weight: 700;
+}
+
+.bubble-content em {
+  font-style: italic;
+}
+
+.bubble-content code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.bubble-content pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: var(--spacing-md);
+  border-radius: var(--spacing-sm);
+  overflow-x: auto;
+  margin: var(--spacing-sm) 0;
+}
+
+.bubble-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.bubble-content ul,
+.bubble-content ol {
+  margin: var(--spacing-sm) 0;
+  padding-left: var(--spacing-lg);
+}
+
+.bubble-content li {
+  margin: var(--spacing-xs) 0;
+}
+
+.bubble-content a {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
+.bubble-content a:hover {
+  color: var(--accent);
+}
+
+.bubble-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+  color: var(--muted);
+}
+
+/* ===================================
+   2.6 Responsive Breakpoints
+   =================================== */
+@media (max-width: 768px) {
+  .header-card,
+  .chat-card {
+    width: 100%;
+  }
+  
+  .header-card,
+  .chat-card {
+    padding: 16px;
+  }
+  
+  .composer {
+    padding: 16px;
+  }
+  
+  .composer-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+  
+  .bubble {
+    max-width: 85%;
+  }
+  
+  .header-title {
+    font-size: 20px;
+  }
+  
+  .header-logo {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bubble {
+    max-width: 90%;
+  }
+  
+  .top-header {
+    padding: var(--spacing-md) var(--spacing-sm) 0;
+  }
+  
+  .chat-wrapper {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+}
