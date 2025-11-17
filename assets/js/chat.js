@@ -208,6 +208,7 @@ class ChatController {
     this.messageCount = 0;
     this.isProcessing = false;
     this.typingIndicator = null;
+    this.isFirstMessage = true;
     
     // Initialize markdown renderer
     this.markdownRenderer = new MarkdownRenderer();
@@ -239,6 +240,42 @@ class ChatController {
     this.sendBtn.addEventListener('click', () => {
       this.sendUserMessage();
     });
+    
+    // Initialize slideshow
+    this.initSlideshow();
+  }
+  
+  /**
+   * Initialize welcome slideshow
+   */
+  initSlideshow() {
+    const slideshow = document.getElementById('welcomeSlideshow');
+    if (!slideshow) return;
+    
+    const slides = slideshow.querySelectorAll('.slide');
+    let currentSlide = 0;
+    
+    // Auto-advance slides every 3 seconds
+    this.slideshowInterval = setInterval(() => {
+      slides[currentSlide].classList.remove('active');
+      
+      currentSlide = (currentSlide + 1) % slides.length;
+      
+      slides[currentSlide].classList.add('active');
+    }, 3000);
+  }
+  
+  /**
+   * Hide welcome slideshow
+   */
+  hideSlideshow() {
+    const slideshow = document.getElementById('welcomeSlideshow');
+    if (slideshow) {
+      slideshow.classList.add('hidden');
+      if (this.slideshowInterval) {
+        clearInterval(this.slideshowInterval);
+      }
+    }
   }
   
   /**
@@ -309,6 +346,12 @@ class ChatController {
     if (text.length > 2000) {
       alert('Message is too long. Please limit to 2000 characters.');
       return;
+    }
+    
+    // Hide slideshow on first message
+    if (this.isFirstMessage) {
+      this.hideSlideshow();
+      this.isFirstMessage = false;
     }
     
     // Create user bubble and append to messages container

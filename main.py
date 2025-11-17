@@ -1,16 +1,26 @@
 import os
 from dotenv import load_dotenv
-from google import genai
+import google.generativeai as genai
 
-# Load the
+# Load .env file
 load_dotenv()
-from google import genai
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Read API key
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY not found in .env file")
 
-response = client.models.generate_content(
-    model="gemini-2.5-flash-lite",
-    contents="Explain how AI works in a detailed paragraph with all the markdown formatting use bullet points",
-)
+# Configure Gemini
+genai.configure(api_key=api_key)
 
-print(response.text)
+# Use Gemini model
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+def main():
+    prompt = "Write a short poem about the sun."
+    response = model.generate_content(prompt)
+    print("Gemini response:\n")
+    print(response.text)
+
+if __name__ == "__main__":
+    main()
