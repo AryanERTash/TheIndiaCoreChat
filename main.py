@@ -8,6 +8,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from pydantic import BaseModel
 from dotenv import load_dotenv
+
+# SlowAPI (in-memory rate limiting)
 from slowapi import Limiter
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
@@ -17,7 +19,10 @@ from slowapi.errors import RateLimitExceeded
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 
+
+# ─────────────────────────────────────────────
 # Load API key
+# ─────────────────────────────────────────────
 load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -26,15 +31,6 @@ if not API_KEY:
 
 MODEL = "gemini-2.5-flash-lite"
 
-# ─────────────────────────────────────────────
-# ASYNC LLM SETUP (THREAD-SAFE)
-# ─────────────────────────────────────────────
-llm = ChatGoogleGenerativeAI(
-    api_key=API_KEY,
-    model=MODEL,
-    temperature=0.7,
-)
-
 SYSTEM_PROMPT = "You are a helpful assistant. Reply in Markdown format."
 
 prompt_template = ChatPromptTemplate.from_messages([
@@ -42,18 +38,26 @@ prompt_template = ChatPromptTemplate.from_messages([
     ("human", "{user_input}")
 ])
 
+
 # ─────────────────────────────────────────────
-# FastAPI app config
+# FastAPI setup
 # ─────────────────────────────────────────────
 app = FastAPI(title="Gemini Chat API", version="1.1")
 
-# Rate limiting
-limiter = Limiter(key_func=get_remote_address, default_limits=["5/minute"])
+# Rate limiting (in-memory)
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["5/minute"]
+)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
-app.add_exception_handler(RateLimitExceeded,
-    lambda r, e: format_error("rate limit exceeded")
+app.add_exception_handler(
+    RateLimitExceeded,
+    lambda r, e: JSONResponse(
+        status_code=200,
+        content={"success": False, "error": "rate limit exceeded", "response": None}
+    )
 )
 
 # gzip compression
@@ -69,7 +73,7 @@ app.add_middleware(
 )
 
 # ─────────────────────────────────────────────
-# Security middleware
+# Security headers
 # ─────────────────────────────────────────────
 class SecureHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
@@ -81,8 +85,9 @@ class SecureHeadersMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(SecureHeadersMiddleware)
 
+
 # ─────────────────────────────────────────────
-# Response schema
+# Response Schema
 # ─────────────────────────────────────────────
 class ChatResponse(BaseModel):
     success: bool
@@ -96,10 +101,11 @@ def format_error(msg: str):
         content=ChatResponse(success=False, error=msg, response=None).model_dump()
     )
 
+
 # ─────────────────────────────────────────────
-# Timeout wrapper (non blocking)
+# Timeout wrapper
 # ─────────────────────────────────────────────
-async def run_with_timeout(awaitable, timeout_sec=30):
+async def run_with_timeout(awaitable, timeout_sec=20):
     try:
         return await asyncio.wait_for(awaitable, timeout=timeout_sec)
     except asyncio.TimeoutError:
@@ -107,24 +113,31 @@ async def run_with_timeout(awaitable, timeout_sec=30):
     except Exception:
         raise
 
+
 # ─────────────────────────────────────────────
-# Chat Endpoint (ASYNC & NON-BLOCKING)
+# Chat Endpoint — FULLY NON-BLOCKING & THREAD-SAFE
 # ─────────────────────────────────────────────
 @app.get("/chat", response_model=ChatResponse)
 @limiter.limit("5/minute")
 async def chat(request: Request, q: str = Query(..., min_length=1)):
-
     try:
+        # Create a new Gemini LLM instance per-request (thread-safe)
+        llm = ChatGoogleGenerativeAI(
+            api_key=API_KEY,
+            model=MODEL,
+            temperature=0.7,
+        )
+
         chain = prompt_template | llm
 
-        # ASYNC — does NOT use worker threads, so fully non-blocking
+        # Async Gemini call — safe, non-blocking, no threads
         result = await run_with_timeout(
             chain.ainvoke({"user_input": q}),
             timeout_sec=25
         )
 
         if result == "TIMEOUT":
-            return format_error("Internet connection lost")
+            return format_error("internet connection lost")
 
         markdown_response = result.content
 
@@ -139,7 +152,7 @@ async def chat(request: Request, q: str = Query(..., min_length=1)):
 
     except Exception as e:
         print("Unexpected error:", e)
-        return format_error("Unexpected error occurred")
+        return format_error("unexpected error occurred")
 
 
 # ─────────────────────────────────────────────
