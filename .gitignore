@@ -1,0 +1,93 @@
+# ----------------------------------------------------------------------
+# Python / Flask Project Gitignore
+# ----------------------------------------------------------------------
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.pdb
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+ENV/
+
+# Environment variables or secrets files
+*.env
+.env.*
+!.env.example
+
+# Flask cache / session files
+instance/
+*.db
+*.sqlite3
+*.sqlite
+
+# Build directories
+build/
+dist/
+develop-eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+# PyInstaller
+*.spec
+
+# Coverage / test outputs
+.coverage
+coverage.xml
+htmlcov/
+pytest_cache/
+.nox/
+.tox/
+.mypy_cache/
+.pytest_cache/
+
+# Logs
+*.log
+logs/
+*.out
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cursor / Kiro editors
+.cursor/
+.kiro/
+*.cursor
+*.kiro
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Frontend / web assets (optional)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Flask static build artifacts
+static/build/
+static/dist/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# ----------------------------------------------------------------------
+# Add your project-specific ignores below if needed
+# ----------------------------------------------------------------------

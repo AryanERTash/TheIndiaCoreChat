@@ -1,0 +1,972 @@
+/* ===================================
+   CSS Design System and Layout
+   TheIndiaCore Chatbot
+   =================================== */
+
+/* ===================================
+   2.1 Design Tokens (CSS Custom Properties)
+   =================================== */
+:root {
+  /* Colors */
+  --bg: #ffffff;
+  --card-bg: #f8faf8;
+  --accent: #4caf50;
+  --accent-2: #2e7d32;
+  --muted: #5f6368;
+  --text: #0f1720;
+  --bubble-user: #e6f7e6;
+  --bubble-bot: #ffffff;
+  --error-bg: #fff3f3;
+  --error-text: #c62828;
+  
+  --title-font: "Elsie", "Odoo Unicode Support Noto", serif;
+  --title-color: #956e02;
+  /* Layout */
+  --max-width-pc: 1100px;
+  --header-width-pc: 80%;
+  --content-width-pc: 65%;
+  --radius: 14px;
+  --shadow: 0 6px 18px rgba(12, 16, 20, 0.06);
+  
+  /* Typography - Using responsive units */
+  --font-family: 'Roboto', system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-size-base: clamp(14px, 3.5vw, 16px); /* Responsive: 14px-16px */
+  --font-size-sm: clamp(12px, 3vw, 14px); /* Responsive: 12px-14px */
+  --line-height: 1.5;
+  
+  /* Spacing - Using responsive units */
+  --spacing-xs: clamp(3px, 1vw, 4px);
+  --spacing-sm: clamp(6px, 1.5vw, 8px);
+  --spacing-md: clamp(10px, 2.5vw, 12px);
+  --spacing-lg: clamp(16px, 4vw, 20px);
+  --spacing-xl: clamp(20px, 5vw, 24px);
+  
+  /* Avatar size - Responsive */
+  --avatar-size: clamp(20px, 6vw, 32px); /* 20px on small, 32px on large */
+  
+  /* Animation */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}
+
+/* ===================================
+   Base Styles
+   =================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===================================
+   2.2 Page Layout with Flexbox
+   =================================== */
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: var(--bg);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.top-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.header-card {
+  width: var(--header-width-pc);
+  max-width: var(--max-width-pc);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgb(247 210 210 / 75%);
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.header-title {
+  font-size: 24px;
+  user-select: none;
+  font-weight: 500;
+  color: var(--title-color);
+  font-family: var(--title-font);
+  margin: 0;
+}
+
+.chat-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--spacing-md) var(--spacing-xl);
+  overflow: hidden;
+}
+
+.chat-card {
+  width: var(--content-width-pc);
+  max-width: var(--max-width-pc);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ===================================
+   2.4 Message Container with Custom Scrollbar
+   =================================== */
+.messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  
+  /* Firefox scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+
+  background-color: #f8f8f8;
+  border: 1px solid #b7b7b7;
+  border-radius: 8px;
+}
+
+/* WebKit scrollbar styling */
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-2);
+}
+
+/* ===================================
+   Welcome Slideshow
+   =================================== */
+.welcome-slideshow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-xl);
+  animation: fadeIn 0.5s ease-in;
+}
+
+.welcome-slideshow.hidden {
+  display: none;
+}
+
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.slide.active {
+  opacity: 1;
+  position: relative;
+}
+
+.slide img {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  user-select: none;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.slide-title {
+  width: 100%;
+  max-width: 400px;
+  color: var(--text);
+  padding: var(--spacing-md);
+  font-size: 22px;
+  user-select: none;
+  text-align: center;
+  background: var(--card-bg);
+  font-family: var(--title-font);
+  color: var(--title-color);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .welcome-slideshow {
+    padding: var(--spacing-md);
+  }
+  
+  .slide img {
+    max-width: 100%;
+  }
+  
+  .slide-title {
+    max-width: 100%;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .slide img {
+    aspect-ratio: 4 / 3;
+  }
+  
+  .slide-title {
+    font-size: 14px;
+    padding: var(--spacing-sm);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================
+   2.3 Message Bubbles with Speech Bubble Tails
+   =================================== */
+.bubble {
+  position: relative;
+  max-width: 75%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius);
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto; /* Enable hyphenation for better text flow */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-base);
+  line-height: clamp(1.5, 1.5 + 0.5vw, 1.7); /* Responsive line-height */
+}
+
+.bubble-content {
+  flex: 1;
+}
+
+.bubble-timestamp {
+  font-size: var(--font-size-sm);
+  color: var(--muted);
+  align-self: flex-end;
+  margin-top: var(--spacing-xs);
+}
+
+/* User Bubble */
+.bubble-user {
+  align-self: flex-end;
+  background: var(--bubble-user);
+  color: var(--text);
+}
+
+.bubble-user::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid var(--bubble-user);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+/* Bot Bubble */
+.bubble-bot {
+  align-self: flex-start;
+  background: var(--bubble-bot);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.bubble-bot::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--bubble-bot);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.bubble-avatar {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.bubble-bot .bubble-content {
+  flex: 1;
+  padding-top: var(--spacing-xs);
+}
+
+/* Error Bubble */
+.bubble-error {
+  align-self: flex-start;
+  background: var(--error-bg);
+  color: var(--error-text);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.bubble-error::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--error-bg);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.error-icon {
+  color: var(--error-text);
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.bubble-error .bubble-content {
+  flex: 1;
+  padding-top: var(--spacing-xs);
+}
+
+/* ===================================
+   2.5 Typing Indicator Animation
+   =================================== */
+.typing-indicator {
+  align-self: flex-start;
+  background: var(--bubble-bot);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  max-width: 120px;
+}
+
+.typing-indicator::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  bottom: 10px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--bubble-bot);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.typing-dots {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.typing-dots .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-2);
+  animation: dot-jump 1.4s infinite;
+}
+
+.typing-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-jump {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ===================================
+   Language Selector and Say Hi Button
+   =================================== */
+.language-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--card-bg);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  flex-wrap: nowrap; /* Keep items in one line */
+}
+
+.language-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0; /* Don't shrink label */
+}
+
+.language-label .material-icons {
+  font-size: 16px;
+  color: var(--accent);
+}
+
+.language-dropdown {
+  flex: 1;
+  min-width: 100px; /* Minimum width */
+  max-width: 180px;
+  padding: 6px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-size: 12px;
+  color: var(--text);
+  background: white;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.language-dropdown:hover {
+  border-color: var(--accent);
+}
+
+.language-dropdown:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+#sayHiBtn {
+  padding: 6px 16px;
+  font-size: 13px;
+  min-width: auto;
+  white-space: nowrap;
+  flex-shrink: 0; /* Don't shrink button */
+}
+
+/* ===================================
+   Composer Styles
+   =================================== */
+.composer {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: var(--card-bg);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.composer-input {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  resize: none;
+  outline: none;
+  transition: border-color var(--transition-fast);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.composer-input:focus {
+  border-color: var(--accent);
+}
+
+.composer-input::placeholder {
+  color: var(--muted);
+}
+
+.composer-send {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.composer-send:hover:not(:disabled) {
+  background: #1b5e20;
+}
+
+.composer-send:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.composer-send .material-icons {
+  font-size: 20px;
+}
+
+/* ===================================
+   Markdown Content Styling
+   =================================== */
+.bubble-content p {
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.bubble-content p:last-child {
+  margin-bottom: 0;
+}
+
+.bubble-content strong {
+  font-weight: 700;
+}
+
+.bubble-content em {
+  font-style: italic;
+}
+
+.bubble-content code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.bubble-content pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: var(--spacing-md);
+  border-radius: var(--spacing-sm);
+  overflow-x: auto;
+  margin: var(--spacing-sm) 0;
+}
+
+.bubble-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.bubble-content ul,
+.bubble-content ol {
+  margin: var(--spacing-sm) 0;
+  padding-left: var(--spacing-lg);
+}
+
+.bubble-content li {
+  margin: var(--spacing-xs) 0;
+}
+
+.bubble-content a {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
+.bubble-content a:hover {
+  color: var(--accent);
+}
+
+.bubble-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+  color: var(--muted);
+}
+
+/* ===================================
+   2.6 Responsive Breakpoints
+   =================================== */
+@media (max-width: 768px) {
+  .header-card,
+  .chat-card {
+    width: 100%;
+  }
+  
+  .header-card,
+  .chat-card {
+    padding: 16px;
+  }
+  
+  .composer {
+    padding: 16px;
+  }
+  
+  .language-selector {
+    padding: 10px 16px;
+    gap: 6px; /* Reduce gap on tablet */
+  }
+  
+  .language-label {
+    font-size: 11px;
+  }
+  
+  .language-dropdown {
+    max-width: 150px;
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+  
+  #sayHiBtn {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+  
+  .composer-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+  
+  /* Override responsive units for tablet */
+  :root {
+    --font-size-base: 15px;
+    --avatar-size: 24px; /* Medium avatar on tablet */
+  }
+  
+  .bubble {
+    max-width: 85%;
+    padding: clamp(12px, 2.5vw, 14px) clamp(14px, 3vw, 16px);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  
+  /* Bot bubbles (replies) occupy more width on tablet */
+  .bubble-bot,
+  .bubble-error,
+  .typing-indicator {
+    max-width: 95%;
+  }
+  
+  /* User bubbles stay at 85% */
+  .bubble-user {
+    max-width: 85%;
+  }
+  
+  .bubble-avatar {
+    width: 24px; /* Medium avatar */
+    height: 24px;
+  }
+  
+  .bubble-content {
+    font-size: 15px;
+  }
+  
+  .bubble-content p {
+    margin-bottom: 9px;
+  }
+  
+  .bubble-content ul,
+  .bubble-content ol {
+    margin: 9px 0;
+    padding-left: 20px;
+  }
+  
+  .bubble-content li {
+    margin: 5px 0;
+    line-height: 1.65;
+  }
+  
+  .header-title {
+    font-size: 20px;
+  }
+  
+  .header-logo {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Override responsive units for mobile optimization */
+  :root {
+    --font-size-base: 12px; /* Smaller base font on mobile */
+    --font-size-sm: 11px;
+    --avatar-size: 18px; /* Smaller avatar on mobile */
+    --spacing-md: 8px;
+    --spacing-lg: 12px;
+  }
+  
+  .bubble {
+    max-width: 92%;
+    padding: clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 14px);
+    font-size: 12px; /* Smaller font to reduce cascading */
+    line-height: 1.55; /* Tighter line-height */
+  }
+  
+  /* Bot bubbles (replies) occupy full width on mobile */
+  .bubble-bot,
+  .bubble-error,
+  .typing-indicator {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  /* User bubbles stay at 92% */
+  .bubble-user {
+    max-width: 92%;
+  }
+  
+  .bubble-avatar {
+    width: 18px; /* Smaller avatar */
+    height: 18px;
+    margin-top: 2px;
+  }
+  
+  .bubble-content {
+    font-size: 12px; /* Consistent smaller font */
+  }
+  
+  .bubble-content p {
+    margin-bottom: 6px; /* Reduced margin */
+  }
+  
+  .bubble-content ul,
+  .bubble-content ol {
+    margin: 6px 0; /* Reduced margin */
+    padding-left: 16px; /* Less indentation */
+  }
+  
+  .bubble-content li {
+    margin: 3px 0; /* Tighter spacing */
+    line-height: 1.55; /* Tighter line-height */
+  }
+  
+  .bubble-content code {
+    font-size: 11px; /* Smaller code font */
+    padding: 2px 4px;
+  }
+  
+  .bubble-content strong {
+    font-weight: 600; /* Slightly lighter bold */
+  }
+  
+  .top-header {
+    padding: var(--spacing-md) var(--spacing-sm) 0;
+  }
+  
+  .chat-wrapper {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  
+  .language-selector {
+    padding: 6px 10px;
+    gap: 3px; /* Minimal gap on small mobile */
+  }
+  
+  .language-label {
+    font-size: 9px;
+  }
+  
+  .language-label .material-icons {
+    font-size: 12px;
+  }
+  
+  .language-dropdown {
+    min-width: 70px; /* Smaller minimum width */
+    max-width: 110px; /* Smaller max width */
+    font-size: 10px;
+    padding: 3px 5px;
+  }
+  
+  #sayHiBtn {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+  
+  .messages {
+    padding: 10px; /* Padding in messages container */
+  }
+}
+
+
+
+.text-long-btn {
+  display: inline-block;
+  width: fit-content;
+  background-color: #aa8c3b;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: auto;
+  text-align: center;
+  transition: background-color 0.25s ease;
+  user-select: none;
+  border: none;
+  font-family: var(--font-family);
+}
+
+.text-long-btn:hover {
+  background-color: #96761f;
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  align-items: flex-start;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.state-dropdown-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.state-dropdown-container label {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.state-dropdown-container select {
+  padding: 6px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-size: 13px;
+  color: var(--text);
+  background: white;
+  cursor: pointer;
+  outline: none;
+  max-width: 250px;
+}
+
+@media (max-width: 768px) {
+  .text-long-btn {
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+  
+  .button-container {
+    gap: 10px;
+    margin-top: 14px;
+  }
+  
+  .button-row {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .text-long-btn {
+    font-size: 11px;
+    padding: 6px 10px;
+    line-height: 1.3;
+  }
+  
+  .button-container {
+    gap: 8px;
+    margin-top: 12px;
+  }
+  
+  .button-row {
+    gap: 8px;
+  }
+  
+  .state-dropdown-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .state-dropdown-container label {
+    font-size: 11px;
+  }
+  
+  .state-dropdown-container select {
+    width: 100%;
+    max-width: 100%;
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}

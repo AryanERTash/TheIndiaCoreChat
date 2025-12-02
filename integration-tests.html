@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Tests - TheIndiaCore Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .test-section {
+            padding: 30px;
+        }
+
+        .test-group {
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .test-group-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .test-group-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .test-group-status {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .status-running {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .status-passed {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-failed {
+            background: #dc3545;
+            color: white;
+        }
+
+        .test-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-name {
+            flex: 1;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .test-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .icon-pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .icon-running {
+            background: #17a2b8;
+            color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        .icon-passed {
+            background: #28a745;
+            color: white;
+        }
+
+        .icon-failed {
+            background: #dc3545;
+            color: white;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .test-details {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #666;
+            display: none;
+        }
+
+        .test-details.show {
+            display: block;
+        }
+
+        .summary {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .summary-item {
+            flex: 1;
+        }
+
+        .summary-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .log-container {
+            padding: 20px 30px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 3px solid transparent;
+        }
+
+        .log-info {
+            border-left-color: #17a2b8;
+        }
+
+        .log-success {
+            border-left-color: #28a745;
+        }
+
+        .log-error {
+            border-left-color: #dc3545;
+        }
+
+        .log-warning {
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Integration Tests</h1>
+            <p>TheIndiaCore Chatbot - Comprehensive Feature Testing</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="runAllBtn">▶ Run All Tests</button>
+            <button class="btn btn-success" id="runHistoryBtn">Test Conversation History</button>
+            <button class="btn btn-success" id="runLanguageBtn">Test Language Selection</button>
+            <button class="btn btn-success" id="runTopicBtn">Test Topic Display</button>
+            <button class="btn btn-success" id="runE2EBtn">Test End-to-End Flow</button>
+            <button class="btn btn-danger" id="clearBtn">Clear Results</button>
+        </div>
+
+        <div class="test-section">
+            <!-- Test Group 1: Conversation History -->
+            <div class="test-group" id="group-history">
+                <div class="test-group-header">
+                    <div class="test-group-title">📝 Conversation History Functionality</div>
+                    <div class="test-group-status status-pending">PENDING</div>
+                </div>
+                <div class="test-item" data-test="history-1">
+                    <div class="test-name">History builds up with multiple messages</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="history-2">
+                    <div class="test-name">Context is maintained across messages</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="history-3">
+                    <div class="test-name">History is pruned after 50 messages</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="history-4">
+                    <div class="test-name">History is sent with API requests</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Group 2: Language Selection -->
+            <div class="test-group" id="group-language">
+                <div class="test-group-header">
+                    <div class="test-group-title">🌐 Language Selection and Switching</div>
+                    <div class="test-group-status status-pending">PENDING</div>
+                </div>
+                <div class="test-item" data-test="language-1">
+                    <div class="test-name">Language selector is present and functional</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="language-2">
+                    <div class="test-name">Selected language is stored correctly</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="language-3">
+                    <div class="test-name">System prompt includes language instruction</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="language-4">
+                    <div class="test-name">Language can be switched mid-conversation</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Group 3: Topic Display -->
+            <div class="test-group" id="group-topic">
+                <div class="test-group-header">
+                    <div class="test-group-title">🏷️ Topic Display with Names</div>
+                    <div class="test-group-status status-pending">PENDING</div>
+                </div>
+                <div class="test-item" data-test="topic-1">
+                    <div class="test-name">TOPICS mapping contains all topic names</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="topic-2">
+                    <div class="test-name">Topic buttons display names not IDs</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="topic-3">
+                    <div class="test-name">Topic headings use names not IDs</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="topic-4">
+                    <div class="test-name">No numeric IDs visible in UI</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Group 4: End-to-End Flow -->
+            <div class="test-group" id="group-e2e">
+                <div class="test-group-header">
+                    <div class="test-group-title">🔄 End-to-End Complete Flow</div>
+                    <div class="test-group-status status-pending">PENDING</div>
+                </div>
+                <div class="test-item" data-test="e2e-1">
+                    <div class="test-name">Language selection persists through flow</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="e2e-2">
+                    <div class="test-name">Conversation history maintains context</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="e2e-3">
+                    <div class="test-name">Topic names display correctly throughout</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+                <div class="test-item" data-test="e2e-4">
+                    <div class="test-name">Error handling works correctly</div>
+                    <div class="test-status">
+                        <div class="status-icon icon-pending">⏳</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary">
+            <div class="summary-item">
+                <div class="summary-value" id="totalTests">0</div>
+                <div class="summary-label">Total Tests</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="passedTests" style="color: #28a745;">0</div>
+                <div class="summary-label">Passed</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="failedTests" style="color: #dc3545;">0</div>
+                <div class="summary-label">Failed</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="pendingTests" style="color: #ffc107;">0</div>
+                <div class="summary-label">Pending</div>
+            </div>
+        </div>
+
+        <div class="log-container" id="logContainer">
+            <div class="log-entry log-info">🚀 Test runner initialized. Click "Run All Tests" to begin.</div>
+        </div>
+    </div>
+
+    <script src="integration-tests.js"></script>
+</body>
+</html>
